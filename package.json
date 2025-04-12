@@ -2,6 +2,8 @@
   "name": "licenta_2025_remastered",
   "version": "0.1.0",
   "private": true,
+
+
   "scripts": {
     "dev": "next dev",
     "build": "next build",
@@ -13,6 +15,7 @@
     "@types/node": "22.14.0",
     "@types/react": "19.1.1",
     "@types/react-dom": "19.1.2",
+    "@uiw/codemirror-extensions-basic-setup": "^4.23.10",
     "@uiw/codemirror-extensions-langs": "^4.23.10",
     "@uiw/react-codemirror": "^4.23.10",
     "eslint": "9.24.0",
