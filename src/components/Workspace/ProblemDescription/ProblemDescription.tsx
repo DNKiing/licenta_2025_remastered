@@ -1,4 +1,10 @@
-import { Problem } from "@/utils/types/problem";
+import CircleSkeleton from "@/components/Skeletons/CircleSkeleton";
+import RectangleSkeleton from "@/components/Skeletons/RectangleSkeleton";
+import { auth, firestore } from "@/firebase/firebase";
+import { DBProblem, Problem } from "@/utils/types/problem";
+import { doc, getDoc } from "firebase/firestore";
+import { useEffect, useState } from "react";
+import { useAuthState } from "react-firebase-hooks/auth";
 import { AiFillLike, AiFillDislike } from "react-icons/ai";
 import { BsCheck2Circle } from "react-icons/bs";
 import { TiStarOutline } from "react-icons/ti";
@@ -6,6 +12,9 @@ import { TiStarOutline } from "react-icons/ti";
 type ProblemDescriptionProps = {problem:Problem};
 
 const ProblemDescription: React.FC<ProblemDescriptionProps> = ({problem}) => {
+   const { currentProblem, loading, problemDifficultyClass } = useGetCurrentProblem(problem.id);
+
+   const{solved} = useGetUsersDataOnProblem(problem.id);
 	return (
 		<div className='bg-gray-800'>
 			{/* TAB */}
@@ -22,17 +31,25 @@ const ProblemDescription: React.FC<ProblemDescriptionProps> = ({problem}) => {
 						<div className='flex space-x-4'>
 							<div className='flex-1 mr-2 text-lg text-white font-medium'>{problem.title}</div>
 						</div>
-						<div className='flex items-center mt-3'>
+					{!loading && currentProblem && (
+                        	<div className='flex items-center mt-3'>
 							<div
-								className={`text-green-500 bg-gray-900 inline-block rounded-[21px] bg-opacity-[.15] px-2.5 py-1 text-xs font-medium capitalize `}
+								className={`${problemDifficultyClass}inline-block rounded-[21px] bg-opacity-[.15] px-2.5 py-1 text-xs font-medium capitalize `}
 							>
-								Easy
+								{currentProblem.difficulty}
 							</div>
 							<div className='rounded p-[3px] ml-4 text-lg transition-colors duration-200 text-green-500 hover:text-green-400'>
-								<BsCheck2Circle />
+							 <BsCheck2Circle />
 							</div>
 
 						</div>
+                    )}
+                    {loading && (
+                        <div className="mt-3 flex space-x-2">
+                            <RectangleSkeleton />
+                            <CircleSkeleton/>
+                        </div>
+                    )}
 
 						{/* Problem Statement(paragraphs) */}
 						<div className='text-white text-sm'>
@@ -65,7 +82,6 @@ const ProblemDescription: React.FC<ProblemDescriptionProps> = ({problem}) => {
   </div>
 ))}
 
-
 						</div>
 
 						{/* Constraints */}
@@ -82,3 +98,53 @@ const ProblemDescription: React.FC<ProblemDescriptionProps> = ({problem}) => {
 	);
 };
 export default ProblemDescription;
+
+function useGetCurrentProblem(problemId:string){
+    const [currentProblem, setCurrentProblem] = useState<DBProblem | null>(null);
+    const [loading, setLoading] = useState<boolean>(true);
+    const [problemDifficultyClass,setproblemDifficultyClass] = useState<string>("");
+
+    useEffect(() => {
+      const getCurrentProblem = async () => {
+        setLoading(true);
+        const docRef=doc(firestore, "problems", problemId);
+        const docSnap = await getDoc(docRef);
+        if(docSnap){
+            const problem=docSnap.data();
+            setCurrentProblem({id:docSnap.id,...problem} as DBProblem);
+            setproblemDifficultyClass(
+                problem?.difficulty === "Easy" ? "bg-green-600 text-white" : problem?.difficulty === "Medium" ? "bg-yellow-500 text-white" : "bg-red-500 text-white"
+            )
+        }
+        setLoading(false);
+    }
+    getCurrentProblem()
+
+    }, [problemId])
+    return {currentProblem, loading, problemDifficultyClass};
+}
+
+function useGetUsersDataOnProblem(problemId: string) {
+	const [data, setData] = useState({ solved: false });
+	const [user] = useAuthState(auth);
+
+	useEffect(() => {
+		const getUsersDataOnProblem = async () => {
+			const userRef = doc(firestore, "users", user!.uid);
+			const userSnap = await getDoc(userRef);
+			if (userSnap.exists()) {
+				const data = userSnap.data();
+				const { solvedProblems, likedProblems, dislikedProblems, starredProblems } = data;
+				setData({
+
+					solved: solvedProblems.includes(problemId),
+				});
+			}
+		};
+
+		if (user) getUsersDataOnProblem();
+		return () => setData({  solved: false });
+	}, [problemId, user]);
+
+	return { ...data, setData };
+}

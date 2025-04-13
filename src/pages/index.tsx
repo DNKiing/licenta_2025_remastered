@@ -1,6 +1,7 @@
 
 import ProblemsTable from '@/components/ProblemsTable/ProblemsTable'
 import Topbar from '@/components/Topbar/Topbar'
+import useHasMounted from '@/hooks/useHasMounted'
 // import { firestore } from '@/firebase/firebase'
 // import { doc, setDoc } from 'firebase/firestore'
 import { Inter } from 'next/font/google'
@@ -31,6 +32,8 @@ export default function Home() {
 //     alert('Problem added successfully!')
 // }
 const [loadingProblems, setLoadingProblems] = useState(true)
+const hasMounted=useHasMounted()
+if(!hasMounted) return null
   return (
     <main className='bg-gray-950 min-h-screen'>
         <Topbar />
