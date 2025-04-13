@@ -1,8 +1,9 @@
-import { firestore } from '@/firebase/firebase';
+import { auth, firestore } from '@/firebase/firebase';
 import { DBProblem } from '@/utils/types/problem';
-import { collection, getDocs, orderBy, query } from 'firebase/firestore';
+import { collection, doc, getDoc, getDocs, orderBy, query } from 'firebase/firestore';
 import Link from 'next/link';
 import React, { useEffect, useState } from 'react';
+import { useAuthState } from 'react-firebase-hooks/auth';
 import { BsCheckCircle } from 'react-icons/bs';
 
 type ProblemsTableProps = {
@@ -10,6 +11,8 @@ type ProblemsTableProps = {
 };
 
 const ProblemsTable: React.FC<ProblemsTableProps> = ({setLoadingProblems}) => {
+    const solvedProblems=useGetSolvedProblems()
+    console.log(solvedProblems)
   const problems=useGetProblems(setLoadingProblems)
     return (
     <tbody className="text-white">
@@ -24,7 +27,7 @@ const ProblemsTable: React.FC<ProblemsTableProps> = ({setLoadingProblems}) => {
         return (
           <tr className={`${idx % 2 === 0 ? 'bg-gray-800' : ''}`} key={problem.id}>
             <th className="px-2 py-4 font-medium whitespace-nowrap text-green-800">
-              <BsCheckCircle fontSize={'10'} width="10" />
+            {solvedProblems.includes(problem.id) &&    <BsCheckCircle fontSize={'18'} width="18" />}
             </th>
             <td className="px-6 py-4">
                (
@@ -66,4 +69,21 @@ function useGetProblems(setLoadingProblems: React.Dispatch<React.SetStateAction<
 		getProblems();
 	}, [setLoadingProblems]);
 	return problems;
+}
+
+function useGetSolvedProblems(){
+    const [solvedProblems, setSolvedProblems] = useState<string[]>([]);
+    const [user]=useAuthState(auth)
+    useEffect(() => {
+      const getSolvedProblem=async () => {
+        const userRef=doc(firestore, "users", user!.uid)
+        const userDoc=await getDoc(userRef)
+        if(userDoc.exists()){
+            setSolvedProblems(userDoc.data().solvedProblems)
+      }
+    }
+   if(user) getSolvedProblem()
+    if(!user){setSolvedProblems([])}
+    }, [user])
+    return solvedProblems
 }

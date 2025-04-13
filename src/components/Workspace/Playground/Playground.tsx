@@ -20,7 +20,7 @@ type PlaygroundProps = {
 const Playground: React.FC<PlaygroundProps> = ({ problem, setSuccess,setSolved }) => {
   const [activeTestCaseId, setActiveTestCaseId] = useState<number>(0);
   const [CodeMirror, setCodeMirror] = useState<any>(null);
-  const[userCode, setUserCode] = useState<string>(problem.starterCode);
+  let[userCode, setUserCode] = useState<string>(problem.starterCode);
   const[user]=useAuthState(auth)
   const {query:{pid}}=useRouter()
 
@@ -31,6 +31,7 @@ const handleSubmit = async () => {
     return
    }
    try {
+    userCode=userCode.slice(userCode.indexOf(problem.starterFunctionName))
     const cb=new Function(`return ${userCode}`)()
     const sucess=problems[pid as string].handlerFunction(cb);
     if(sucess){
@@ -59,7 +60,17 @@ const handleSubmit = async () => {
 }
 const onChange = (value: string) => {
     setUserCode(value);
+    localStorage.setItem(`code-${pid}`, JSON.stringify(value));
   }
+useEffect(() => {
+const code=localStorage.getItem(`code-${pid}`)
+if(user){
+    setUserCode(code ? JSON.parse(code) : problem.starterCode)
+}else{
+    setUserCode(problem.starterCode)
+}
+
+}, [pid,user, problem.starterCode])
 
   useEffect(() => {
     import('@uiw/react-codemirror').then((mod) => setCodeMirror(() => mod.default));
@@ -79,7 +90,7 @@ const onChange = (value: string) => {
         >
           <div className="w-full h-full">
             <CodeMirror
-              value={problem.starterCode}
+              value={userCode}
               onChange={onChange}
               extensions={[langs.javascript()]}
               theme="dark"
