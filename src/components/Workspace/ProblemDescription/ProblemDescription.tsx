@@ -9,9 +9,11 @@ import { AiFillLike, AiFillDislike } from "react-icons/ai";
 import { BsCheck2Circle } from "react-icons/bs";
 import { TiStarOutline } from "react-icons/ti";
 
-type ProblemDescriptionProps = {problem:Problem};
+type ProblemDescriptionProps = {problem:Problem,
+    _solved:boolean
+};
 
-const ProblemDescription: React.FC<ProblemDescriptionProps> = ({problem}) => {
+const ProblemDescription: React.FC<ProblemDescriptionProps> = ({problem,_solved}) => {
    const { currentProblem, loading, problemDifficultyClass } = useGetCurrentProblem(problem.id);
 
    const{solved} = useGetUsersDataOnProblem(problem.id);
@@ -38,9 +40,11 @@ const ProblemDescription: React.FC<ProblemDescriptionProps> = ({problem}) => {
 							>
 								{currentProblem.difficulty}
 							</div>
-							<div className='rounded p-[3px] ml-4 text-lg transition-colors duration-200 text-green-500 hover:text-green-400'>
+						{(solved || _solved) && (
+                            	<div className='rounded p-[3px] ml-4 text-lg transition-colors duration-200 text-green-500 hover:text-green-400'>
 							 <BsCheck2Circle />
 							</div>
+                        )}
 
 						</div>
                     )}
@@ -134,7 +138,7 @@ function useGetUsersDataOnProblem(problemId: string) {
 			const userSnap = await getDoc(userRef);
 			if (userSnap.exists()) {
 				const data = userSnap.data();
-				const { solvedProblems, likedProblems, dislikedProblems, starredProblems } = data;
+				const { solvedProblems } = data;
 				setData({
 
 					solved: solvedProblems.includes(problemId),

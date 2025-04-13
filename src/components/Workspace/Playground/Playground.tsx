@@ -4,14 +4,62 @@ import Split from 'react-split';
 import { langs } from '@uiw/codemirror-extensions-langs';
 import EditorFooter from './EditorFooter';
 import { Problem } from '@/utils/types/problem';
+import { useAuthState } from 'react-firebase-hooks/auth';
+import { auth, firestore } from '@/firebase/firebase';
+import { toast } from 'react-toastify';
+import { problems } from '@/utils/problems';
+import { useRouter } from 'next/router';
+import { arrayUnion, doc, updateDoc } from 'firebase/firestore';
 
 type PlaygroundProps = {
   problem: Problem;
+  setSuccess:React.Dispatch<React.SetStateAction<boolean>>;
+  setSolved:React.Dispatch<React.SetStateAction<boolean>>;
 };
 
-const Playground: React.FC<PlaygroundProps> = ({ problem }) => {
+const Playground: React.FC<PlaygroundProps> = ({ problem, setSuccess,setSolved }) => {
   const [activeTestCaseId, setActiveTestCaseId] = useState<number>(0);
   const [CodeMirror, setCodeMirror] = useState<any>(null);
+  const[userCode, setUserCode] = useState<string>(problem.starterCode);
+  const[user]=useAuthState(auth)
+  const {query:{pid}}=useRouter()
+
+const handleSubmit = async () => {
+   if(!user){
+    toast.error("Please login to submit your solution",{autoClose: 3000, position:"top-center", theme:"dark"
+    })
+    return
+   }
+   try {
+    const cb=new Function(`return ${userCode}`)()
+    const sucess=problems[pid as string].handlerFunction(cb);
+    if(sucess){
+        toast.success("Congratulations! You solved the problem!", {
+            autoClose: 3000,
+            position: "top-center",
+            theme: "dark",
+        });
+        setSuccess(true);
+        setTimeout(() => {
+            setSuccess(false);
+        }, 4000);
+        const userRef = doc(firestore, "users", user.uid);
+        await updateDoc(userRef, {
+            solvedProblems: arrayUnion(pid),
+        })
+        setSolved(true)
+    }
+   } catch (error) {
+    toast.error("Something went wrong!", {
+        autoClose: 3000,
+        position: "top-center",
+        theme: "dark",
+    });
+   }
+}
+const onChange = (value: string) => {
+    setUserCode(value);
+  }
 
   useEffect(() => {
     import('@uiw/react-codemirror').then((mod) => setCodeMirror(() => mod.default));
@@ -32,7 +80,8 @@ const Playground: React.FC<PlaygroundProps> = ({ problem }) => {
           <div className="w-full h-full">
             <CodeMirror
               value={problem.starterCode}
-              extensions={[langs.c()]}
+              onChange={onChange}
+              extensions={[langs.javascript()]}
               theme="dark"
               style={{ fontSize: 16, height: '100%' }}
             />
@@ -74,7 +123,7 @@ const Playground: React.FC<PlaygroundProps> = ({ problem }) => {
           </div>
         </Split>
       )}
-      <EditorFooter />
+      <EditorFooter handleSubmit={handleSubmit}/>
     </div>
   );
 };
