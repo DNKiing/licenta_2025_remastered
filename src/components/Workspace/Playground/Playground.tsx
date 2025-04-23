@@ -17,67 +17,72 @@ type PlaygroundProps = {
   setSolved:React.Dispatch<React.SetStateAction<boolean>>;
 };
 
-const Playground: React.FC<PlaygroundProps> = ({ problem, setSuccess,setSolved }) => {
+const Playground: React.FC<PlaygroundProps> = ({ problem, setSuccess, setSolved }) => {
   const [activeTestCaseId, setActiveTestCaseId] = useState<number>(0);
   const [CodeMirror, setCodeMirror] = useState<any>(null);
-  let[userCode, setUserCode] = useState<string>(problem.starterCode);
-  const[user]=useAuthState(auth)
-  const {query:{pid}}=useRouter()
+  const [output, setOutput] = useState<string | null>(null); // State to store the output
+  let [userCode, setUserCode] = useState<string>(problem.starterCode);
+  const [user] = useAuthState(auth);
+  const { query: { pid } } = useRouter();
 
-const handleSubmit = async () => {
-  if (!user) {
-    toast.error("Please login to submit your solution", {
-      autoClose: 3000,
-      position: "top-center",
-      theme: "dark",
-    });
-    return;
-  }
-
-  try {
-    const response = await fetch("/api/compile-c", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ code: userCode }),
-    });
-
-    const result = await response.json();
-
-    if (result.success) {
-      toast.success(`Output:\n${result.output}`, {
-        autoClose: 5000,
+  const handleSubmit = async () => {
+    if (!user) {
+      toast.error("Please login to submit your solution", {
+        autoClose: 3000,
         position: "top-center",
         theme: "dark",
       });
-    } else {
-      toast.error(`Error:\n${result.error}`, {
-        autoClose: 5000,
+      return;
+    }
+
+    try {
+      const response = await fetch("/api/compile-c", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ code: userCode }),
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        setOutput(result.output); // Set the output on success
+        toast.success("Code executed successfully!", {
+          autoClose: 3000,
+          position: "top-center",
+          theme: "dark",
+        });
+      } else {
+        setOutput(result.error); // Set the error message
+        toast.error("Code execution failed!", {
+          autoClose: 3000,
+          position: "top-center",
+          theme: "dark",
+        });
+      }
+    } catch (error) {
+      console.error(error);
+      setOutput("Something went wrong!");
+      toast.error("Something went wrong!", {
+        autoClose: 3000,
         position: "top-center",
         theme: "dark",
       });
     }
-  } catch (error) {
-    console.error(error);
-    toast.error("Something went wrong!", {
-      autoClose: 3000,
-      position: "top-center",
-      theme: "dark",
-    });
-  }
-};
-const onChange = (value: string) => {
+  };
+
+  const onChange = (value: string) => {
     setUserCode(value);
     localStorage.setItem(`code-${pid}`, JSON.stringify(value));
-  }
-useEffect(() => {
-const code=localStorage.getItem(`code-${pid}`)
-if(user){
-    setUserCode(code ? JSON.parse(code) : problem.starterCode)
-}else{
-    setUserCode(problem.starterCode)
-}
+  };
 
-}, [pid,user, problem.starterCode])
+  useEffect(() => {
+    const code = localStorage.getItem(`code-${pid}`);
+    if (user) {
+      setUserCode(code ? JSON.parse(code) : problem.starterCode);
+    } else {
+      setUserCode(problem.starterCode);
+    }
+  }, [pid, user, problem.starterCode]);
 
   useEffect(() => {
     import('@uiw/react-codemirror').then((mod) => setCodeMirror(() => mod.default));
@@ -105,43 +110,16 @@ if(user){
             />
           </div>
           <div className="w-full px-5 overflow-auto">
-            <div className='flex h-6 items-center space-x-6'>
-              <div className='relative flex h-full flex-row justify-center cursor-pointer'>
-                <div className='text-sm font-medium leading-5 text-white '>Test Cases</div>
-                <hr className='absolute bottom-0 h-0.5 w-full rounded-full border-none bg-white' />
-              </div>
-            </div>
-            <div className='flex'>
-              {problem.examples.map((example, index) => (
-                <div
-                  className="mr-2 items-start mt-2 text-white"
-                  key={example.id}
-                  onClick={() => setActiveTestCaseId(index)}
-                >
-                  <div className="flex flex-wrap items-center gap-y-4">
-                    <div className={`font-medium items-center transition-all focus:outline-none inline-flex bg-gray-900 hover:bg-gray-700 relative rounded-full px-4 py-1 cursor-pointer ${activeTestCaseId === index ? 'bg-green-700' : ''}`}>
-                      Case {index + 1}
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-
             <div className='font-semibold my-4'>
-              <p className='text-sm font-medium mt-4 text-white'>Input:</p>
+              <p className='text-sm font-medium mt-4 text-white'>Output:</p>
               <div className='w-full cursor-text rounded-lg border px-3 py-[10px] bg-dark-fill-3 border-transparent text-white mt-2'>
-                {problem.examples[activeTestCaseId].inputText}
+                {output !== null ? output : "Run your code to see the output here."}
               </div>
-            </div>
-
-            <p className='text-sm font-medium mt-4 text-white'>Output:</p>
-            <div className='w-full cursor-text rounded-lg border px-3 py-[10px] bg-dark-fill-3 border-transparent text-white mt-2'>
-              {problem.examples[activeTestCaseId].outputText}
             </div>
           </div>
         </Split>
       )}
-      <EditorFooter handleSubmit={handleSubmit}/>
+      <EditorFooter handleSubmit={handleSubmit} />
     </div>
   );
 };
