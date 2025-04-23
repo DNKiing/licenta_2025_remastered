@@ -25,39 +25,46 @@ const Playground: React.FC<PlaygroundProps> = ({ problem, setSuccess,setSolved }
   const {query:{pid}}=useRouter()
 
 const handleSubmit = async () => {
-   if(!user){
-    toast.error("Please login to submit your solution",{autoClose: 3000, position:"top-center", theme:"dark"
-    })
-    return
-   }
-   try {
-    userCode=userCode.slice(userCode.indexOf(problem.starterFunctionName))
-    const cb=new Function(`return ${userCode}`)()
-    const sucess=problems[pid as string].handlerFunction(cb);
-    if(sucess){
-        toast.success("Congratulations! You solved the problem!", {
-            autoClose: 3000,
-            position: "top-center",
-            theme: "dark",
-        });
-        setSuccess(true);
-        setTimeout(() => {
-            setSuccess(false);
-        }, 4000);
-        const userRef = doc(firestore, "users", user.uid);
-        await updateDoc(userRef, {
-            solvedProblems: arrayUnion(pid),
-        })
-        setSolved(true)
-    }
-   } catch (error) {
-    toast.error("Something went wrong!", {
-        autoClose: 3000,
+  if (!user) {
+    toast.error("Please login to submit your solution", {
+      autoClose: 3000,
+      position: "top-center",
+      theme: "dark",
+    });
+    return;
+  }
+
+  try {
+    const response = await fetch("/api/compile-c", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ code: userCode }),
+    });
+
+    const result = await response.json();
+
+    if (result.success) {
+      toast.success(`Output:\n${result.output}`, {
+        autoClose: 5000,
         position: "top-center",
         theme: "dark",
+      });
+    } else {
+      toast.error(`Error:\n${result.error}`, {
+        autoClose: 5000,
+        position: "top-center",
+        theme: "dark",
+      });
+    }
+  } catch (error) {
+    console.error(error);
+    toast.error("Something went wrong!", {
+      autoClose: 3000,
+      position: "top-center",
+      theme: "dark",
     });
-   }
-}
+  }
+};
 const onChange = (value: string) => {
     setUserCode(value);
     localStorage.setItem(`code-${pid}`, JSON.stringify(value));
@@ -92,7 +99,7 @@ if(user){
             <CodeMirror
               value={userCode}
               onChange={onChange}
-              extensions={[langs.javascript()]}
+              extensions={[langs.c()]}
               theme="dark"
               style={{ fontSize: 16, height: '100%' }}
             />

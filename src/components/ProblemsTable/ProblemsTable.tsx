@@ -12,7 +12,7 @@ type ProblemsTableProps = {
 
 const ProblemsTable: React.FC<ProblemsTableProps> = ({setLoadingProblems}) => {
     const solvedProblems=useGetSolvedProblems()
-    console.log(solvedProblems)
+
   const problems=useGetProblems(setLoadingProblems)
     return (
     <tbody className="text-white">
