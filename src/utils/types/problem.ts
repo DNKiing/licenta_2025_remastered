@@ -12,11 +12,11 @@ export type Problem = {
 	title: string;
 	problemStatement: string;
 	examples: Example[];
-	constraints: string;
+	constraints?: string;
 	order: number;
 	starterCode: string;
-	handlerFunction: ((fn: any) => boolean) | string;
-	starterFunctionName: string;
+	// handlerFunction: ((fn: any) => boolean) | string;
+	// starterFunctionName?: string;
 };
 
 export type DBProblem = {
@@ -24,9 +24,5 @@ export type DBProblem = {
 	title: string;
 	category: string;
 	difficulty: string;
-	likes: number;
-	dislikes: number;
 	order: number;
-	videoId?: string;
-	link?: string;
 };

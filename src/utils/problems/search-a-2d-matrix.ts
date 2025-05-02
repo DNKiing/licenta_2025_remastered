@@ -82,7 +82,7 @@ export const search2DMatrix: Problem = {
   <li class='mt-2'><code>-10<sup>4</sup> <= matrix[i][j], target <= 10<sup>4</sup></code></li>
   `,
 	starterCode: starterCodeSearch2DMatrixJS,
-	handlerFunction: search2DMatrixHandler,
-	starterFunctionName: "function searchMatrix",
+	// handlerFunction: search2DMatrixHandler,
+	// starterFunctionName: "function searchMatrix",
 	order: 5,
 };
