@@ -15,28 +15,39 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     exec(`wsl wslpath "${tempFilePath}"`, (pathError, wslPath, pathStderr) => {
       if (pathError) {
         fs.unlinkSync(tempFilePath);
-        return res.status(400).json({ success: false, error: pathStderr });
+        return res.status(400).json({ success: false, error: pathStderr.trim() });
       }
 
       const wslCompatiblePath = wslPath.trim();
 
       // Compile the C code
-      exec(`wsl gcc "${wslCompatiblePath}" -o temp`, (compileError, _, compileStderr) => {
+      exec(`wsl gcc "${wslCompatiblePath}" -o temp 2>&1`, (compileError, stdout, compileStderr) => {
+        fs.unlinkSync(tempFilePath); // Clean up the temporary file
+
         if (compileError) {
-          fs.unlinkSync(tempFilePath);
-          return res.status(400).json({ success: false, error: compileStderr });
+          // Use regex to remove everything before "error:"
+          const errorLines = stdout
+            .split("\n")
+            .map((line) => {
+              const errorIndex = line.indexOf("error:");
+              return errorIndex !== -1 ? line.slice(errorIndex) : null; // Keep only the part after "error:"
+            })
+            .filter((line) => line !== null) // Remove null lines
+            .join("\n");
+
+          return res.status(400).json({ success: false, error: errorLines.trim() });
         }
 
-        // Execute the compiled binary
+        // If compilation succeeds, execute the binary
         exec(`wsl ./temp`, (execError, stdout, stderr) => {
-          // Clean up temporary files
-          fs.unlinkSync(tempFilePath);
-          if (fs.existsSync("temp")) fs.unlinkSync("temp");
+          if (fs.existsSync("temp")) fs.unlinkSync("temp"); // Clean up the binary
 
           if (execError) {
-            return res.status(400).json({ success: false, error: stderr });
+            // Return the runtime error
+            return res.status(400).json({ success: false, error: stderr.trim() });
           }
 
+          // Return the program output
           res.status(200).json({ success: true, output: stdout.trim() });
         });
       });

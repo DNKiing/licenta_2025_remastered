@@ -1,20 +1,20 @@
 import { Problem } from "../types/problem";
+import { findMax } from "./find-maximum-element";
+import { longestSubarraySum } from "./longest-subarray-sum";
+import { removeDuplicates } from "./remove-duplicates";
 
-import { jumpGame } from "./jump-game";
-import { reverseLinkedList } from "./reverse-linked-list";
-import { search2DMatrix } from "./search-a-2d-matrix";
-import { twoSum } from "./two-sum";
-import { validParentheses } from "./valid-parentheses";
+import { reverseArray } from "./reverse-array";
+import { rotateArray } from "./rotate-array";
+
 
 interface ProblemMap {
 	[key: string]: Problem;
 }
 
 export const problems: ProblemMap = {
-	"two-sum": twoSum,
-	"reverse-linked-list": reverseLinkedList,
-	"jump-game": jumpGame,
-	"search-a-2d-matrix": search2DMatrix,
-	"valid-parentheses": validParentheses,
-
+    "reverse-array": reverseArray,
+    "find-maximum-element": findMax,
+    "remove-duplicates": removeDuplicates,
+    "rotate-array": rotateArray,
+    "longest-subarray-sum": longestSubarraySum,
 };
