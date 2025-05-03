@@ -18,16 +18,16 @@ const ProblemDescription: React.FC<ProblemDescriptionProps> = ({problem,_solved}
 
    const{solved} = useGetUsersDataOnProblem(problem.id);
 	return (
-		<div className='bg-gray-800'>
+		<div className='bg-gray-900'>
 			{/* TAB */}
-			<div className='flex h-11 w-full items-center pt-2 bg-gray-800 text-white overflow-x-hidden'>
-				<div className={"bg-gray-800 rounded-t-[5px] px-5 py-[10px] text-xs cursor-pointer"}>
+			<div className='flex h-11 w-full items-center pt-2 bg-gray-900 text-white overflow-x-hidden'>
+				<div className={"bg-gray-900 rounded-t-[5px] px-5 py-[10px] text-xs cursor-pointer w-f"}>
 					Description
 				</div>
 			</div>
 
-			<div className='flex px-0 py-4 h-[calc(100vh-94px)] overflow-y-auto'>
-				<div className='px-5'>
+			<div className='flex px-0 py-4 h-[calc(100vh-94px)] overflow-y-auto  '>
+				<div className='px-5 '>
 					{/* Problem heading */}
 					<div className='w-full'>
 						<div className='flex space-x-4'>
@@ -61,31 +61,30 @@ const ProblemDescription: React.FC<ProblemDescriptionProps> = ({problem,_solved}
 						</div>
 
 						{/* Examples */}
-						<div className='mt-4'>
-{problem.examples.map((example, index) => (
-  <div key={index}>
-    <p className='font-medium text-white'>Example {index + 1}:</p>
-    {example.img && (
-        <img
-          src={example.img}
-          alt={`Example ${index + 1}`}
-          className='mt-3'/>
-    )}
-    <div className='example-card'>
-      <pre>
-        <strong className='text-white'>Input: </strong> {example.inputText}{" "}
-        <br />
-        <strong>Output:</strong> {example.outputText} <br />
-      {example.explanation && (
-        <>
-        <strong>Explanation:</strong> {example.explanation}
-        </>
-      )}
-      </pre>
-    </div>
-  </div>
-))}
-
+                    <div className='mt-4'>
+                    {problem.examples.map((example, index) => (
+                    <div key={index}>
+                        <p className='font-medium text-white'>Example {index + 1}:</p>
+                        {example.img && (
+                            <img
+                            src={example.img}
+                            alt={`Example ${index + 1}`}
+                            className='mt-3'/>
+                        )}
+                        <div className='example-card'>
+                        <pre>
+                            <strong className='text-white'>Input: </strong> {example.inputText}{" "}
+                            <br />
+                            <strong>Output:</strong> {example.outputText} <br />
+                        {example.explanation && (
+                            <>
+                            <strong>Explanation:</strong> {example.explanation}
+                            </>
+                        )}
+                        </pre>
+                        </div>
+                    </div>
+                    ))}
 						</div>
 
 						{/* Constraints ? ⬇️*/}

@@ -48,7 +48,7 @@ code {
 }
 
 .gutter {
-    background-color: #eee;
+    background-color: #6e6e6e;
     background-repeat: no-repeat;
     background-position: 50%;
 }
@@ -73,7 +73,7 @@ code {
 /* CODE EDITOR*/
 .cm-scroller,
 .cm-gutters {
-	background-color: #282828 !important;
+	background-color: #101828 !important;
 }
 .cm-focused {
 	outline: none !important;

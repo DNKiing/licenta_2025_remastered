@@ -18,7 +18,7 @@ type PlaygroundProps = {
 };
 
 const Playground: React.FC<PlaygroundProps> = ({ problem, setSuccess, setSolved }) => {
-  const [activeTestCaseId, setActiveTestCaseId] = useState<number>(0);
+//   const [activeTestCaseId, setActiveTestCaseId] = useState<number>(0);
   const [CodeMirror, setCodeMirror] = useState<any>(null);
   const [output, setOutput] = useState<string | null>(null); // State to store the output
   let [userCode, setUserCode] = useState<string>(problem.starterCode);
@@ -89,7 +89,7 @@ const Playground: React.FC<PlaygroundProps> = ({ problem, setSuccess, setSolved 
   }, []);
 
   return (
-    <div className='flex flex-col bg-gray-800 relative h-screen'>
+    <div className='flex flex-col bg-gray-900 relative h-[95vh]'>
       <PreferenceNav />
 
       {CodeMirror && (
@@ -100,13 +100,13 @@ const Playground: React.FC<PlaygroundProps> = ({ problem, setSuccess, setSolved 
           minSize={100}
           gutterSize={10}
         >
-          <div className="w-full h-full">
+          <div className="w-full h-full overflow-auto">
             <CodeMirror
               value={userCode}
               onChange={onChange}
               extensions={[langs.c()]}
               theme="dark"
-              style={{ fontSize: 16, height: '100%' }}
+              style={{ fontSize: 16, height: '70%' }}
             />
           </div>
           <div className="w-full px-5 overflow-auto">

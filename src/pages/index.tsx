@@ -9,33 +9,12 @@ import { useState } from 'react'
 const inter = Inter({ subsets: ['latin'] })
 
 export default function Home() {
-//     const [inputs, setInputs] = useState({
-//         id: '',
-//         title: '',
-//         difficulty: '',
-//         category: '',
-//         order: 0
-//     })
-//     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-// setInputs({
-//     ...inputs,
-//     [e.target.name]: e.target.value
-// })
-// }
-// const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-//     e.preventDefault()
-//     const newProblem={
-//         ...inputs,
-//         order: Number(inputs.order),
-//     }
-//     await setDoc(doc(firestore, 'problems', inputs.id),newProblem )
-//     alert('Problem added successfully!')
-// }
+
 const [loadingProblems, setLoadingProblems] = useState(true)
 const hasMounted=useHasMounted()
 if(!hasMounted) return null
   return (
-    <main className='bg-gray-950 min-h-screen'>
+    <main className='bg-gray-900 min-h-screen'>
         <Topbar />
         <h1
   className='text-2xl text-center text-gray-700 dark:text-gray-400 font-medium uppercase mt-10 mb-5'>
@@ -68,22 +47,12 @@ if(!hasMounted) return null
         <th scope='col' className='px-6 py-3 w-0 font-medium'>
           Category
         </th>
-
       </tr>
     </thead>
   )}
     <ProblemsTable setLoadingProblems={setLoadingProblems}/>
   </table>
   </div>
-  {/* temp form for adding problems to firestore
-  <form className='p-6 flex flex-col max-w-sm gap-3 text-white' onSubmit={handleSubmit}>
-    <input onChange={handleInputChange} type="text" placeholder='problem id' name='id' />
-    <input onChange={handleInputChange} type="text" placeholder='title' name='title' />
-    <input onChange={handleInputChange} type="text" placeholder='difficulty' name='difficulty' />
-    <input onChange={handleInputChange} type="text" placeholder='category' name='category' />
-    <input onChange={handleInputChange} type="text" placeholder='order' name='order' />
-    <button >Save to firestore</button>
-  </form> */}
 </main>
   )
 }

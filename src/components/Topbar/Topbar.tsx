@@ -37,7 +37,7 @@ const Topbar:React.FC<TopbarProps> = ({problemPage}) => {
         }
     }
 
-    return  <nav className='relative flex h-[50px] w-full shrink-0 items-center px-5 bg-gray-900 text-gray-300'>
+    return  <nav className='relative flex h-[50px] w-full shrink-0 items-center px-5 bg-gray-800 text-gray-300'>
 			<div className={`flex w-full items-center justify-between ${problemPage ? 'max-w-[1200px] mx-auto': ""} `}>
 				<Link href='/' className='h-[22px] flex-1'>
 					{/* <img src='/logo-full.png' alt='Logo' className='h-full' /> */}
