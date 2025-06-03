@@ -14,8 +14,8 @@ export type Problem = {
 	examples: Example[];
 	order: number;
 	starterCode: string;
-	// handlerFunction: ((fn: any) => boolean) | string;
-	// starterFunctionName?: string;
+	testCases?: { input: number[]; output: number }[];
+	solution?: string;
 };
 
 export type DBProblem = {
